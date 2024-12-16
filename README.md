@@ -4,7 +4,7 @@
 
   ```toml
   [dependencies]
-  ap2024_rustinpeace_nosounddrone = { git = "https://github.com/Rust-In-Peace-AP/WindowsXP-Drone.git" }
+  ap2024_rustinpeace_nosounddrone = { git = "https://github.com/Rust-In-Peace-AP/No-Sound-Drone.git" }
   ```
 
   Then in the code like this: :mute:
