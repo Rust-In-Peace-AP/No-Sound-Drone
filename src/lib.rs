@@ -172,14 +172,20 @@ impl NoSoundDroneRIP {
             return;
         }
 
-        let mut next_hop;
-
         // Getting the next node to send the packet to
-        if !is_flood_request {
-            next_hop = packet.routing_header.hops[new_hop_index];
-            println!("Drone {} next hop: {}", self.id, next_hop);
+        let maybe_next_hop = packet.routing_header.hops.get(new_hop_index);
+
+        let mut next_hop = 0;
+
+        match maybe_next_hop {
+            Some(maybe_next_hop) => {
+                next_hop = *maybe_next_hop;
+            },
+            None => {
+                println!("No next hop found. Checking for flood request.");
+            }
         }
-        
+
         // Checking if there is a channel to the next hop. So checking if it's a neighbor
         if self.packet_send.get(&next_hop).is_none() && !is_flood_request {
 
