@@ -254,7 +254,7 @@ impl NoSoundDroneRIP {
                     // Creates the routing header reversing the path trace
                     let routing_header = reverse_routing_header(
                         &flood_request.path_trace.iter().map(|(node_id, _)| *node_id).clone().collect::<Vec<NodeId>>(),
-                        new_hop_index + 1);
+                        new_hop_index );
 
                     let next_hop = routing_header.hops[1];
 
@@ -293,7 +293,7 @@ impl NoSoundDroneRIP {
                     let response_packet = Packet::new_flood_response(
                         reverse_routing_header(
                             &flood_request.path_trace.iter().map(|(node_id, _)| *node_id).clone().collect::<Vec<NodeId>>(),
-                            new_hop_index + 1,
+                            new_hop_index,
                         ),
                         packet.session_id,
                         FloodResponse {
