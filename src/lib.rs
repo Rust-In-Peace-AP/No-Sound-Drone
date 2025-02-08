@@ -252,9 +252,7 @@ impl NoSoundDroneRIP {
                 if contains_pair(&self.flood_ids, &flood_request.flood_id, &flood_request.initiator_id) {
 
                     // Creates the routing header reversing the path trace
-                    let routing_header = reverse_routing_header(
-                        &flood_request.path_trace.iter().map(|(node_id, _)| *node_id).clone().collect::<Vec<NodeId>>(),
-                        new_hop_index );
+                    let routing_header = flood_request.path_trace.iter().rev().collect();
 
                     let next_hop = routing_header.hops[1];
 
@@ -291,10 +289,8 @@ impl NoSoundDroneRIP {
                     // Creates a FloodResponse with the routing header created by reversing the path trace
 
                     let response_packet = Packet::new_flood_response(
-                        reverse_routing_header(
-                            &flood_request.path_trace.iter().map(|(node_id, _)| *node_id).clone().collect::<Vec<NodeId>>(),
-                            new_hop_index,
-                        ),
+                        flood_request.path_trace.iter().rev().collect(),
+
                         packet.session_id,
                         FloodResponse {
                             flood_id: flood_request.flood_id,
@@ -302,7 +298,7 @@ impl NoSoundDroneRIP {
                         },
                     );
 
-                    println!("Packet sent to Drone {} from Drone {}", next_hop, self.id);
+                    println!("Packet sent to Drone {} from Drone {}", flood_request.path_trace.last().unwrap(), self.id);
                     // Sends the packet to the previous node of the new routing header reversed that is the previous node of the modules
                     self.send_packet(response_packet.clone(), &response_packet.routing_header.hops[1]);
 
