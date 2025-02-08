@@ -1,7 +1,5 @@
 #![allow(unused)]
 
-mod drone_test;
-
 use crossbeam_channel::{select_biased, Receiver, Sender};
 use std::collections::HashMap;
 use std::time::Duration;
