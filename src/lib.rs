@@ -249,8 +249,11 @@ impl NoSoundDroneRIP {
 
                 if contains_pair(&self.flood_ids, &flood_request.flood_id, &flood_request.initiator_id) {
 
+                    let mut path_trace = flood_request.path_trace.clone();
+                    path_trace.push((self.id, NodeType::Drone));
+
                     // Creates the routing header reversing the path trace
-                    let path = flood_request.path_trace.iter().map(|(id, _)| *id).rev().collect::<Vec<NodeId>>();
+                    let path = path_trace.iter().map(|(id, _)| *id).rev().collect::<Vec<NodeId>>();
                     let routing_header = SourceRoutingHeader::new(path, 1);
 
                     let next_hop = routing_header.hops[1];
@@ -261,7 +264,7 @@ impl NoSoundDroneRIP {
                         packet.session_id,
                         FloodResponse {
                             flood_id: flood_request.flood_id,
-                            path_trace: flood_request.path_trace.clone(),
+                            path_trace: path_trace.clone(),
                         },
                     );
 
