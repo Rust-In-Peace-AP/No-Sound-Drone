@@ -136,7 +136,7 @@ impl NoSoundDroneRIP {
         let start_hop_index = packet.routing_header.hop_index;
 
         // Checking if the packet is for this modules
-        if packet.routing_header.hops[start_hop_index] != self.id && !is_flood_request{
+        if !is_flood_request && packet.routing_header.hops[start_hop_index] != self.id{
 
             // Creating the nack packet with reversed routing header, hop index incremented because it hasn't been incremented yet and wouldn't split the actual node
             let nack_packet = self.create_nack_packet(&packet.routing_header.hops, start_hop_index+1, NackType::UnexpectedRecipient(self.id), packet.session_id);
