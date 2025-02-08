@@ -5,6 +5,7 @@ mod drone_test;
 use crossbeam_channel::{select_biased, Receiver, Sender};
 use std::collections::HashMap;
 use std::time::Duration;
+use drone_tester::Node;
 use wg_2024::controller::{DroneCommand, DroneEvent};
 use wg_2024::drone::Drone;
 use wg_2024::network::{NodeId, SourceRoutingHeader};
@@ -252,7 +253,8 @@ impl NoSoundDroneRIP {
                 if contains_pair(&self.flood_ids, &flood_request.flood_id, &flood_request.initiator_id) {
 
                     // Creates the routing header reversing the path trace
-                    let routing_header = flood_request.path_trace.iter().rev().collect();
+                    let path = flood_request.path_trace.iter().map(|(id, _)| *id).rev().collect::<Vec<NodeId>>();
+                    let routing_header = SourceRoutingHeader::new(path, 1);
 
                     let next_hop = routing_header.hops[1];
 
@@ -286,11 +288,12 @@ impl NoSoundDroneRIP {
                 // If there are no neighbors, creates the response packet
                 if neighbors.clone().count() == 0 {
 
-                    // Creates a FloodResponse with the routing header created by reversing the path trace
+                    // Creates the routing header reversing the path trace
+                    let path = flood_request.path_trace.iter().map(|(id, _)| *id).rev().collect::<Vec<NodeId>>();
+                    let routing_header = SourceRoutingHeader::new(path, 1);
 
                     let response_packet = Packet::new_flood_response(
-                        flood_request.path_trace.iter().rev().collect(),
-
+                        routing_header.clone(),
                         packet.session_id,
                         FloodResponse {
                             flood_id: flood_request.flood_id,
@@ -298,9 +301,11 @@ impl NoSoundDroneRIP {
                         },
                     );
 
-                    println!("Packet sent to Drone {} from Drone {}", flood_request.path_trace.last().unwrap(), self.id);
+                    let next_hop = routing_header.hops[1];
+
+                    println!("Packet sent to Drone {} from Drone {}", next_hop, self.id);
                     // Sends the packet to the previous node of the new routing header reversed that is the previous node of the modules
-                    self.send_packet(response_packet.clone(), &response_packet.routing_header.hops[1]);
+                    self.send_packet(response_packet.clone(), &next_hop);
 
                     return;
                 }
